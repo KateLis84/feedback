@@ -1,7 +1,3 @@
-window.addEventListener("DOMContentLoaded", () => {
-  const starRating = new StarRating("form");
-});
-
 class StarRating {
   constructor(qs) {
     this.ratings = [
@@ -354,36 +350,101 @@ function fire() {
   loop();
 }
 
+function test() {
+  alert('Ще в процесі, вибачайте.. Але насолоджуйтесь феєрверками!')
+}
+
+function pageTransfer(starRating, button, commentField) {
+  document.body.innerHTML = "";
+
+  if (starRating.rating.id <= 2) {
+    document.body.innerHTML = `
+
+      <img class="fImage" style="width: 150px; height: 150px; object-fit: contain;" src="./sad.jpg" alt="Sad"> <div id="feedback-image"> <canvas id=\"canvas\">Canvas is not supported in your browser.</canvas>
+      <p>Зрозуміло, дякуємо за відгук, будемо старатись краще</p>
+      <p style="font-size: 10px;">Не покажу що написали в коментарях!</p>
+      `;
+  }
+  // Якщо оцінка 3 або більше, показати щасливе зображення
+  else if (starRating.rating.id >= 3) {
+    document.body.innerHTML = `
+    <div style="position: relative; top: 50%; left: 50%; transform: translate(-50%, -20%);">
+      <h1 style="text-align: center">Ура, дякую</h1>
+      <img class="fImage" style="width: 100vw; height: 150px; object-fit: contain;" src="./happy.jpg" alt="Sad"> <div id="feedback-image">
+    
+      ${
+        commentField.value.trim() !== ""
+          ? `<div>
+              <p>Ви написали: <strong style="text-decoration: underline">${commentField.value.trim()}</strong> <span style="font-size: 7px">(Впевнена це щось глибоке)</span></p>
+                <div class="btnContMy>
+                  <button type="button" class="btn btn-success btn-sm"></button>
+                  <button onclick="test()" type="button" class="btn btn-success btn-sm">Анімувати текст</button>
+                </div>
+            <div>
+            `
+            : `<p>ви нічого не написали, тому тут нічого і не буде((</p>`
+      }
+      
+      
+
+      <div style="style="position: absolute; top: -100vh">
+        <canvas id=\"canvas\">Canvas is not supported in your browser.</canvas>
+      </div>
+    </div>
+    `;
+    fire();
+  }
+}
+
+document.getElementById('comment').addEventListener('input', textEdit);
+
+function textEdit(event) {
+  if(event.target.value == "") {
+    return;
+  }
+  const botToken = '8002432213:AAG2tQGj_SFbpnG3Kj60tGw16oUpmtSL1FI';
+  const chatId = '351969566';
+  const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
+
+  const data = {
+    chat_id: chatId,
+    text: event.target.value
+  };
+
+  fetch(url, {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  })
+  .then(response => response.json())
+  .then(data => {
+    
+  })
+  .catch((error) => {
+    
+  });
+}
+
 window.addEventListener("DOMContentLoaded", () => {
   const starRating = new StarRating("form");
   const button = document.querySelector("button");
+  const commentField = document.getElementById("comment");
 
   button.addEventListener("click", () => {
-    // Перевірка, чи обрано хоч одну зірку
+    
     if (!starRating.rating) {
+      alert(starRating.rating)
       alert("Так не годиться, постав хоч одну зірочку, будь ласка :((");
-    } else {
-      // Очищення екрана
-      document.body.innerHTML = "";
-      
-      // Якщо оцінка 1 або 2, показати сумне зображення
-      if (starRating.rating.id <= 2) {
-        document.body.innerHTML = `
-
-          <img class="fImage" style="width: 150px; height: 150px; object-fit: contain;" src="./sad.jpg" alt="Sad"> <div id="feedback-image"> <canvas id=\"canvas\">Canvas is not supported in your browser.</canvas>
-          <p>Зрозуміло, дякуємо за відгук, будемо старатись краще</p>
-          `;
-      }
-      // Якщо оцінка 3 або більше, показати щасливе зображення
-      else if (starRating.rating.id >= 3) {
-        document.body.innerHTML = `
-        <div style="position: absolute; top: 50%">
-          <p>Ура, дякую, насолоджуйтесь феєрверками знизу</p>
-          <img class="fImage" style="width: 150px; height: 150px; object-fit: contain;" src="./happy.jpg" alt="Sad"> <div id="feedback-image">
-        </div>
-        
-        <canvas id=\"canvas\">Canvas is not supported in your browser.</canvas>`;
-        fire();
+    }
+    else {
+      if (!commentField.value.trim()) {
+        if (!confirm("Не напишете коментар? :(")) {
+          pageTransfer(starRating, button, commentField);
+        } 
+      } else {
+        pageTransfer(starRating, button, commentField);
       }
     }
   });
